@@ -78,4 +78,4 @@ def play_word(word):
 
 if __name__ == '__main__':
     play_all_words()
-    # play_word('AARGH')
+    # play_word('GIANT')

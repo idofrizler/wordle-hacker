@@ -28,30 +28,29 @@ def init_dictionary_from_url():
 class WordleDictionary:
     def __init__(self) -> None:
         self.words = copy.deepcopy(init_dictionary_from_url())
-        self.five_letter_set_mapping = self.create_five_letter_set_mapping()
 
-    def find_most_common_letters_no_repetitions(self):
-        dict = defaultdict(int)
+    def find_letter_frequency_in_current_dict(self):
+        frequencies = defaultdict(int)
         for word in self.words:
             for c in set([c for c in word]):
-                dict[c] += 1
+                frequencies[c] += 1
 
-        most_common = sorted(dict.items(), key=lambda item: item[1])
-        return most_common[-5:]
+        return frequencies
 
-    def create_five_letter_set_mapping(self):
-        dict = defaultdict(list)
-        for word in self.words:
-            word_set = ''.join(sorted(set([c for c in word])))
-            dict[word_set].append(word)
+    @staticmethod
+    def sum_word_frequencies(word, letter_frequencies):
+        freq_sum = 0
+        letters_set = set()
+        for c in word:
+            if c not in letters_set:
+                freq_sum += letter_frequencies[c]
+                letters_set.add(c)
 
-        return dict
+        return freq_sum
 
-    def find_best_mapping(self):
-        most_common_letters_keys = [t[0] for t in self.find_most_common_letters_no_repetitions()]
-        word_set = ''.join(sorted(set([c for c in most_common_letters_keys])))
+    def calc_aggregate_frequency_per_word(self):
+        letter_frequencies = self.find_letter_frequency_in_current_dict()
+        word_frequencies = [(word, self.sum_word_frequencies(word, letter_frequencies)) for word in self.words]
+        return sorted(word_frequencies, key=lambda x: x[1], reverse=True)
 
-        match = self.five_letter_set_mapping.get(word_set, [])
-        return match
 
-    # def get_valid_words_for_pattern(self, pattern):

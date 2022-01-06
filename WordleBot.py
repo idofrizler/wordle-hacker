@@ -20,15 +20,12 @@ class WordleBot:
 
     # Bot option 2
     def guess_most_common_letters_from_dictionary(self):
-        most_common_letters = self.words_dictionary.find_most_common_letters_no_repetitions()
-        print('Most common letters: {}'.format(most_common_letters))
+        frequencies = self.words_dictionary.calc_aggregate_frequency_per_word()
+        if frequencies:
+            print('Chosen word: {}, aggregate frequency: {}'.format(frequencies[0][0], frequencies[0][1]))
+            return frequencies[0][0]
 
-        best_mapping = self.words_dictionary.find_best_mapping()
-        print('Best mapping is: {}'.format(best_mapping))
-
-        if len(best_mapping) > 0:
-            return best_mapping[0]
-
+        print('Empty list for some reason...')
         return self.guess_random_from_all_words()
 
     def update_dictionary_after_turn(self, turn):
@@ -43,8 +40,6 @@ class WordleBot:
                 self.words_dictionary.words = [word for word in self.words_dictionary.words if word[i] != c and word.count(c) < all_occurrences[c]]
 
         print('New dictionary size is: {}'.format(len(self.words_dictionary.words)))
-
-        self.words_dictionary.five_letter_set_mapping = self.words_dictionary.create_five_letter_set_mapping()
 
     @staticmethod
     def count_all_occurrences(guess):
