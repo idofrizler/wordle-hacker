@@ -1,6 +1,7 @@
 from WordleBot import WordleBot
 from WordleDictionary import WordleDictionary
 from WordleTurn import WordleTurn, GuessPattern
+from multiprocessing import Pool
 
 TOTAL_GUESSES = 6
 
@@ -40,8 +41,9 @@ class WordleGame:
         wordle_bot.update_dictionary_after_turn(turn)
 
 
-def play_wordle(word, wordle_bot):
+def play_wordle(word):
     game = WordleGame(word)
+    wordle_bot = WordleBot()
     while not game.is_over():
         game.play_turn(wordle_bot)
 
@@ -50,32 +52,24 @@ def play_wordle(word, wordle_bot):
     else:
         print('Game over. Correct word is "{}"'.format(word))
 
-    return game.is_successful(), game.turns_played()
+    if game.is_successful():
+        return (word, 1, game.turns_played())
+    return (word, 0, 0)
 
 
 def play_all_words():
     input_words = WordleDictionary()
 
-    total_games = len(input_words.words)
-    successful_games = 0
-    total_turns_in_successful_games = 0
-    for word in input_words.words:
-        print('------------------------------')
-        print('Playing word: {}'.format(word))
-        bot = WordleBot()
-        is_successful, turns_played = play_wordle(word, bot)
-        if is_successful:
-            successful_games += 1
-            total_turns_in_successful_games += turns_played
+    p = Pool(10)
+    pool_output = p.map(play_wordle, input_words.words)
 
-    print('Total games: {}\nSuccessful games: {}\nAverage turns when successful: {}'.format(total_games, successful_games, float(total_turns_in_successful_games)/successful_games))
-
-
-def play_word(word):
-    bot = WordleBot()
-    play_wordle(word, bot)
+    successful_games = sum([output[1] for output in pool_output])
+    total_turns_in_successful_games = sum([output[2] for output in pool_output])
+    failed_words = [output[0] for output in pool_output if not output[1]]
+    print('Total games: {}\nSuccessful games: {}\nAverage turns when successful: {}'.format(len(input_words.words), successful_games, float(total_turns_in_successful_games)/successful_games))
+    print('Failed words: {}'.format(failed_words))
 
 
 if __name__ == '__main__':
-    play_all_words()
-    # play_word('GIANT')
+    # play_all_words()
+    play_wordle('HOUND')

@@ -20,7 +20,11 @@ class WordleBot:
 
     # Bot option 2
     def guess_most_common_letters_from_dictionary(self):
+        # Bot option 1
         frequencies = self.words_dictionary.calc_aggregate_frequency_per_word()
+        # Bot option 2
+        # frequencies = self.words_dictionary.calc_information_gain_per_word()
+
         if frequencies:
             print('Chosen word: {}, aggregate frequency: {}'.format(frequencies[0][0], frequencies[0][1]))
             return frequencies[0][0]
