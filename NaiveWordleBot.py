@@ -1,38 +1,19 @@
-import random
+import math
 import string
 from collections import defaultdict
+
+from WordleBotInterface import WordleBotInterface
 from WordleTurn import SQUARE
 
-from WordleDictionary import WordleDictionary
 
-
-class WordleBot:
+class WordleBot(WordleBotInterface):
     def __init__(self, game) -> None:
-        self.game = game
-        self.words_dictionary = WordleDictionary()
+        super().__init__(game)
         self.green_squares = set()
         self.green_letters = set()
         self.yellow_letters = set()
         self.grey_squares = set()
         self.grey_letters = set()
-
-    def play_game(self):
-        while not self.game.is_over():
-            self.play_turn()
-
-    def play_turn(self):
-        assert not self.game.is_over()
-
-        guess = self.make_guess()
-        turn = self.game.play_turn(guess)
-        self.update_after_turn(turn)
-
-    def make_guess(self):
-        choice = self.choose_optimal_word()
-        return choice
-
-    def guess_random_from_all_words(self):
-        return random.choice(self.words_dictionary.words)
 
     def choose_optimal_word(self):
         # Bot option 1
@@ -51,14 +32,14 @@ class WordleBot:
         print('Yellow letters: {}'.format(self.yellow_letters))
         print('Grey squares: {}'.format(self.grey_squares))
         print('Existing information: {}'.format(existing_information))
-        frequencies = self.calc_information_gain_per_word_from_orig_dict() if existing_information < 3 or (word_dict_len > 6) else self.calc_information_gain_per_word_from_current_dict()
-
+        frequencies = self.calc_information_gain_approx_per_word_from_orig_dict() if existing_information < 3 or (word_dict_len > 6) else self.calc_information_gain_approx_per_word_from_current_dict()
         if frequencies:
             print('Chosen word: {}, aggregate frequency: {}'.format(frequencies[0][0], frequencies[0][1]))
             return frequencies[0][0]
 
-        print('Empty list for some reason...')
-        return self.guess_random_from_all_words()
+        random_word = self.guess_random_from_current_dict()
+        print('Chosen word: {} at random'.format(random_word))
+        return random_word
 
     def update_after_turn(self, turn):
         all_occurrences = self.count_all_occurrences(turn.guess)
@@ -86,21 +67,6 @@ class WordleBot:
         self.grey_letters = set.union(self.grey_letters, set(string.ascii_uppercase) - remaining_letters)
         print('Remaining letters: {}'.format(remaining_letters))
 
-    @staticmethod
-    def count_all_occurrences(guess):
-        occurrences = defaultdict(int)
-        for c in guess:
-            occurrences[c] += 1
-        return occurrences
-
-    @staticmethod
-    def count_green_yellow_occurrences(pattern):
-        occurrences = defaultdict(int)
-        for (p, c) in pattern.pattern:
-            if p == SQUARE.GREEN or p == SQUARE.YELLOW:
-                occurrences[c] += 1
-        return occurrences
-
     def find_letter_frequency_in_current_dict(self):
         frequencies = defaultdict(int)
         for word in self.words_dictionary.words:
@@ -109,29 +75,29 @@ class WordleBot:
 
         return frequencies
 
-    def sum_word_information_gain(self, word, letter_frequencies, total_word_count):
+    def sum_word_information_gain_approx(self, word, letter_frequencies, total_word_count):
         information_gain_sum = 0
-        letters_dict = defaultdict(int)
+        letter_count_in_curr_word = defaultdict(int)
         for i, c in enumerate(word):
             if (i, c) not in self.green_squares and c not in self.grey_letters:
-                if letters_dict[c] == 0 or (letters_dict[0] > 0 and (i, c) not in self.grey_squares):
+                if letter_count_in_curr_word[c] == 0 or (letter_count_in_curr_word[c] > 0 and (i, c) not in self.grey_squares):
                     yellow_penalty = 0.2 if c in self.yellow_letters or c in self.green_letters else 1
-                    grey_penalty = 0.2**letters_dict[c]
+                    grey_penalty = 0.2**letter_count_in_curr_word[c]
                     information_gain_sum += grey_penalty*yellow_penalty*(1.0-abs(0.5-(float(letter_frequencies[c])/total_word_count)))
-                    letters_dict[c] += 1
+                    letter_count_in_curr_word[c] += 1
 
         return information_gain_sum
 
-    def calc_information_gain_per_word(self, word_dict):
+    def calc_information_gain_approx_per_word(self, word_dict):
         letter_frequencies = self.find_letter_frequency_in_current_dict()
-        word_information_gain = [(word, self.sum_word_information_gain(word, letter_frequencies, len(word_dict))) for word in word_dict]
+        word_information_gain = [(word, self.sum_word_information_gain_approx(word, letter_frequencies, len(self.words_dictionary.words))) for word in word_dict]
         return sorted(word_information_gain, key=lambda x: x[1], reverse=True)
 
-    def calc_information_gain_per_word_from_current_dict(self):
-        return self.calc_information_gain_per_word(self.words_dictionary.words)
+    def calc_information_gain_approx_per_word_from_current_dict(self):
+        return self.calc_information_gain_approx_per_word(self.words_dictionary.words)
 
-    def calc_information_gain_per_word_from_orig_dict(self):
-        return self.calc_information_gain_per_word(self.words_dictionary.words_orig)
+    def calc_information_gain_approx_per_word_from_orig_dict(self):
+        return self.calc_information_gain_approx_per_word(self.words_dictionary.words_orig)
 
     @staticmethod
     def sum_word_frequencies(word, letter_frequencies):
@@ -148,7 +114,3 @@ class WordleBot:
         letter_frequencies = self.find_letter_frequency_in_current_dict()
         word_frequencies = [(word, self.sum_word_frequencies(word, letter_frequencies)) for word in self.words_dictionary.words]
         return sorted(word_frequencies, key=lambda x: x[1], reverse=True)
-
-
-
-

@@ -43,6 +43,6 @@ def init_dictionary_from_url():
 
 class WordleDictionary:
     def __init__(self) -> None:
-        # self.words = copy.deepcopy(init_dictionary_from_wordle_source(0, 20))
-        self.words = copy.deepcopy(init_dictionary_from_wordle_source(1, 19))
+        self.words = copy.deepcopy(init_dictionary_from_wordle_source(0, 20))
+        # self.words = copy.deepcopy(init_dictionary_from_wordle_source(1, 19))
         self.words_orig = copy.deepcopy(self.words)

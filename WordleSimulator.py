@@ -1,4 +1,4 @@
-from WordleBot import WordleBot
+from NaiveWordleBot import WordleBot
 from WordleDictionary import WordleDictionary
 from multiprocessing import Pool
 
@@ -37,4 +37,4 @@ def play_all_words():
 
 if __name__ == '__main__':
     play_all_words()
-    # play_wordle('CASES')
+    # play_wordle('GRAZE')
