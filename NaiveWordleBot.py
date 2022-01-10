@@ -6,7 +6,7 @@ from WordleBotInterface import WordleBotInterface
 from WordleTurn import SQUARE
 
 
-class WordleBot(WordleBotInterface):
+class NaiveWordleBot(WordleBotInterface):
     def __init__(self, game) -> None:
         super().__init__(game)
         self.green_squares = set()
@@ -24,7 +24,7 @@ class WordleBot(WordleBotInterface):
         # frequencies = self.calc_information_gain_per_word_from_orig_dict()
 
         # Bot option 4
-        word_dict_len = len(self.words_dictionary.words)
+        word_dict_len = len(self.words_dictionary.remaining_puzzle_words)
         greens = len(self.green_squares)
         yellows = len(self.yellow_letters)
         existing_information = greens + yellows
@@ -46,30 +46,30 @@ class WordleBot(WordleBotInterface):
         green_yellow_occurrences = self.count_green_yellow_occurrences(turn.pattern)
         for i, (p, c) in enumerate(turn.pattern.pattern):
             if p == SQUARE.GREEN:
-                self.words_dictionary.words = [word for word in self.words_dictionary.words if word[i] == c]
+                self.words_dictionary.remaining_puzzle_words = [word for word in self.words_dictionary.remaining_puzzle_words if word[i] == c]
                 self.green_squares.add((i, c))
                 self.green_letters.add(c)
             elif p == SQUARE.YELLOW:
-                self.words_dictionary.words = [word for word in self.words_dictionary.words if word[i] != c and word.count(c) >= green_yellow_occurrences[c]]
+                self.words_dictionary.remaining_puzzle_words = [word for word in self.words_dictionary.remaining_puzzle_words if word[i] != c and word.count(c) >= green_yellow_occurrences[c]]
                 self.yellow_letters.add(c)
             elif p == SQUARE.MISS:
-                self.words_dictionary.words = [word for word in self.words_dictionary.words if word[i] != c and word.count(c) < all_occurrences[c]]
+                self.words_dictionary.remaining_puzzle_words = [word for word in self.words_dictionary.remaining_puzzle_words if word[i] != c and word.count(c) < all_occurrences[c]]
                 self.grey_squares.add((i, c))
                 self.grey_letters.add(c)
 
-        print('New dictionary size is: {}'.format(len(self.words_dictionary.words)))
+        print('New dictionary size is: {}'.format(len(self.words_dictionary.remaining_puzzle_words)))
         self.update_grey_letters()
 
     def update_grey_letters(self):
         remaining_letters = set()
-        for word in self.words_dictionary.words:
+        for word in self.words_dictionary.remaining_puzzle_words:
             remaining_letters = set.union(remaining_letters, set(word))
         self.grey_letters = set.union(self.grey_letters, set(string.ascii_uppercase) - remaining_letters)
         print('Remaining letters: {}'.format(remaining_letters))
 
     def find_letter_frequency_in_current_dict(self):
         frequencies = defaultdict(int)
-        for word in self.words_dictionary.words:
+        for word in self.words_dictionary.remaining_puzzle_words:
             for c in set([c for c in word]):
                 frequencies[c] += 1
 
@@ -90,14 +90,14 @@ class WordleBot(WordleBotInterface):
 
     def calc_information_gain_approx_per_word(self, word_dict):
         letter_frequencies = self.find_letter_frequency_in_current_dict()
-        word_information_gain = [(word, self.sum_word_information_gain_approx(word, letter_frequencies, len(self.words_dictionary.words))) for word in word_dict]
+        word_information_gain = [(word, self.sum_word_information_gain_approx(word, letter_frequencies, len(self.words_dictionary.remaining_puzzle_words))) for word in word_dict]
         return sorted(word_information_gain, key=lambda x: x[1], reverse=True)
 
     def calc_information_gain_approx_per_word_from_current_dict(self):
-        return self.calc_information_gain_approx_per_word(self.words_dictionary.words)
+        return self.calc_information_gain_approx_per_word(self.words_dictionary.remaining_puzzle_words)
 
     def calc_information_gain_approx_per_word_from_orig_dict(self):
-        return self.calc_information_gain_approx_per_word(self.words_dictionary.words_orig)
+        return self.calc_information_gain_approx_per_word(self.words_dictionary.valid_words)
 
     @staticmethod
     def sum_word_frequencies(word, letter_frequencies):
@@ -112,5 +112,5 @@ class WordleBot(WordleBotInterface):
 
     def calc_aggregate_frequency_per_word(self):
         letter_frequencies = self.find_letter_frequency_in_current_dict()
-        word_frequencies = [(word, self.sum_word_frequencies(word, letter_frequencies)) for word in self.words_dictionary.words]
+        word_frequencies = [(word, self.sum_word_frequencies(word, letter_frequencies)) for word in self.words_dictionary.remaining_puzzle_words]
         return sorted(word_frequencies, key=lambda x: x[1], reverse=True)

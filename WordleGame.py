@@ -1,6 +1,8 @@
+from LoggerFactory import LoggerFactory
 from WordleTurn import WordleTurn, GuessPattern
 
 TOTAL_GUESSES = 6
+logger = LoggerFactory.get_logger()
 
 
 class WordleGame:
@@ -29,8 +31,9 @@ class WordleGame:
     def play_turn(self, guess):
         assert not self.is_over()
 
+        logger.info('Playing turn #{}'.format(len(self.turns)+1))
         guess_pattern = GuessPattern(self.secret_word, guess)
-        print('Guess is:   {}\nPattern is: {}'.format(guess, guess_pattern.print_pattern()))
+        logger.info('Guess is:   {}\n                          Pattern is: {}'.format(guess, guess_pattern.print_pattern()))
 
         turn = WordleTurn(guess, guess_pattern)
         self.turns.append(turn)

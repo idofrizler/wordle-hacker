@@ -1,4 +1,4 @@
 # wordle-hacker
 
 Usage:
-`python WordleGame.py`
+`python WordleSimulator.py`
