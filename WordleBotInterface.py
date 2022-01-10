@@ -18,7 +18,7 @@ class WordleBotInterface(ABC):
     def play_turn(self):
         assert not self.game.is_over()
 
-        guess = self.make_guess() if len(self.game.turns) > 0 else 'RAISE'
+        guess = self.make_guess() if len(self.game.turns) > 0 else 'TARES'
         turn = self.game.play_turn(guess)
         self.update_after_turn(turn)
 

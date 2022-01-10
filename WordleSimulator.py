@@ -9,7 +9,7 @@ from multiprocessing import Pool
 
 from WordleGame import WordleGame
 
-POOL_SIZE = 20
+POOL_SIZE = 10
 logger = LoggerFactory.get_logger()
 
 
@@ -31,8 +31,9 @@ def play_wordle(word, puzzle_words, valid_words):
 def pack_global_params(dictionary_fetcher):
     puzzle_words = copy.deepcopy(dictionary_fetcher.puzzle_words)
     valid_words = copy.deepcopy(dictionary_fetcher.valid_words)
+    input_words = puzzle_words  # ['GRAZE']
 
-    return zip(puzzle_words, repeat(puzzle_words), repeat(valid_words))
+    return zip(input_words, repeat(puzzle_words), repeat(valid_words))
 
 
 def play_all_words():
@@ -45,10 +46,11 @@ def play_all_words():
     successful_games = sum([output[1] for output in pool_output])
     total_turns_in_successful_games = sum([output[2] for output in pool_output])
     failed_words = [output[0] for output in pool_output if not output[1]]
-    logger.info('Total games: {}\nSuccessful games: {}\nAverage turns when successful: {}'.format(len(dictionary_fetcher.puzzle_words), successful_games, float(total_turns_in_successful_games) / successful_games))
+    logger.info('Total games: {}\n{}Successful games: {}\n{}Average turns when successful: {}'.format(
+        len(dictionary_fetcher.puzzle_words), ' '*26, successful_games, ' '*26,
+        float(total_turns_in_successful_games) / successful_games))
     logger.info('Failed words: {}'.format(failed_words))
 
 
 if __name__ == '__main__':
     play_all_words()
-    # play_wordle('GRAZE')

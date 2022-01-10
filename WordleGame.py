@@ -33,7 +33,7 @@ class WordleGame:
 
         logger.info('Playing turn #{}'.format(len(self.turns)+1))
         guess_pattern = GuessPattern(self.secret_word, guess)
-        logger.info('Guess is:   {}\n                          Pattern is: {}'.format(guess, guess_pattern.print_pattern()))
+        logger.info('Guess is:   {}\n{}Pattern is: {}'.format(guess, ' '*26, guess_pattern.print_pattern()))
 
         turn = WordleTurn(guess, guess_pattern)
         self.turns.append(turn)
