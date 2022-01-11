@@ -20,7 +20,7 @@ For using the bot to play Wordle, run the following command: \
 `python WordleSimulator.py --interactive`
 
 Then, simply take its printed guess each turn, and write back the pattern that was received from the online game.
-The pattern should be five characters (all caps), comprised of 'V','?' or 'X'.
+The pattern should be five characters (all caps), comprised of 'V','?' or 'X' (E.g., VX??X).
 > V - Green square \
 ? - Yellow square \
 X - Grey square
