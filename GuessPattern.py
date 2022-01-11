@@ -1,3 +1,4 @@
+import re
 from collections import defaultdict
 from enum import Enum
 
@@ -5,15 +6,26 @@ WORDLE_WORD_LENGTH = 5
 
 
 class SQUARE(Enum):
-    BLANK = 0
-    GREEN = 1
-    YELLOW = 2
-    MISS = 3
+    GREEN = 0
+    YELLOW = 1
+    GREY = 2
+
+
+STR_TO_SQUARE = {
+    'V': SQUARE.GREEN,
+    '?': SQUARE.YELLOW,
+    'X': SQUARE.GREY
+}
 
 
 class GuessPattern:
-    def __init__(self, secret_word, guessed_word) -> None:
-        self.pattern = self.create_pattern(secret_word, guessed_word)
+    ALL_GREENS = 'VVVVV'
+
+    def __init__(self, first_param, guessed_word, init_from_str=False) -> None:
+        if init_from_str:
+            self.pattern = self.create_pattern_from_str(first_param, guessed_word)
+        else:
+            self.pattern = self.create_pattern(first_param, guessed_word)
 
     def print_pattern(self):
         pattern_str = ''
@@ -23,7 +35,7 @@ class GuessPattern:
                 pattern_str += 'V'
             elif p == SQUARE.YELLOW:
                 pattern_str += '?'
-            elif p == SQUARE.MISS:
+            elif p == SQUARE.GREY:
                 pattern_str += 'X'
             else:
                 pattern_str += '_'
@@ -46,11 +58,19 @@ class GuessPattern:
                 pattern.append((SQUARE.GREEN, g))
             else:
                 square = SQUARE.YELLOW if g in secret_word and occurrences[g] < secret_word.count(g) - \
-                                          green_occurrences[g] else SQUARE.MISS
+                                          green_occurrences[g] else SQUARE.GREY
                 pattern.append((square, g))
                 occurrences[g] += 1
 
         return pattern
+
+    @staticmethod
+    def create_pattern_from_str(pattern_str, guessed_word):
+        return [(STR_TO_SQUARE[c1], c2) for c1, c2 in zip(pattern_str, guessed_word)]
+
+    @staticmethod
+    def validate_pattern(stdin_pattern):
+        return re.match('^[VX?]{5}$', stdin_pattern)
 
 
 # class PatternCache(object):
@@ -70,7 +90,4 @@ class GuessPattern:
 #         return pattern_mapping
 
 
-class WordleTurn:
-    def __init__(self, guess, pattern) -> None:
-        self.guess = guess
-        self.pattern = pattern
+

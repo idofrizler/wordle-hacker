@@ -1,3 +1,4 @@
+import argparse
 import copy
 from itertools import repeat
 
@@ -7,14 +8,14 @@ from LoggerFactory import LoggerFactory
 from multiprocessing import Pool
 # from multiprocessing.pool import ThreadPool as Pool
 
-from WordleGame import WordleGame
+from WordleGame import BenchmarkWordleGame, InteractiveWordleGame
 
 POOL_SIZE = 10
 logger = LoggerFactory.get_logger()
 
 
 def play_wordle(word, puzzle_words, valid_words):
-    game = WordleGame(word)
+    game = BenchmarkWordleGame(word)
     bot = EntropyWordleBot(game, puzzle_words, valid_words)
     bot.play_game()
 
@@ -36,7 +37,7 @@ def pack_global_params(dictionary_fetcher):
     return zip(input_words, repeat(puzzle_words), repeat(valid_words))
 
 
-def play_all_words():
+def benchmark_all_words():
     p = Pool(POOL_SIZE)
 
     dictionary_fetcher = DictionaryFetcher()
@@ -52,5 +53,25 @@ def play_all_words():
     logger.info('Failed words: {}'.format(failed_words))
 
 
+parser = argparse.ArgumentParser(description='Choose a flow to be run')
+parser.add_argument('--interactive', action='store_true', help='interactively play a Wordle game with the bot')
+parser.add_argument('--benchmark', action='store_true', help='benchmark the bot on all words in dictionary')
+
+
+def play_word_with_bot():
+    dictionary_fetcher = DictionaryFetcher()
+    game = InteractiveWordleGame()
+    bot = EntropyWordleBot(game, dictionary_fetcher.puzzle_words, dictionary_fetcher.valid_words)
+    bot.play_game()
+    if game.is_successful():
+        logger.info('Guessed correctly the word "{}" in {} turns'.format(game.last_guess().guess, game.turns_played()))
+    else:
+        logger.info('Game over.')
+
+
 if __name__ == '__main__':
-    play_all_words()
+    args = parser.parse_args()
+    if args.interactive:
+        play_word_with_bot()
+    if args.benchmark:
+        benchmark_all_words()

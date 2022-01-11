@@ -3,7 +3,7 @@ import string
 from collections import defaultdict
 
 from WordleBotInterface import WordleBotInterface
-from WordleTurn import SQUARE
+from GuessPattern import SQUARE
 
 
 class NaiveWordleBot(WordleBotInterface):
@@ -52,7 +52,7 @@ class NaiveWordleBot(WordleBotInterface):
             elif p == SQUARE.YELLOW:
                 self.words_dictionary.remaining_puzzle_words = [word for word in self.words_dictionary.remaining_puzzle_words if word[i] != c and word.count(c) >= green_yellow_occurrences[c]]
                 self.yellow_letters.add(c)
-            elif p == SQUARE.MISS:
+            elif p == SQUARE.GREY:
                 self.words_dictionary.remaining_puzzle_words = [word for word in self.words_dictionary.remaining_puzzle_words if word[i] != c and word.count(c) < all_occurrences[c]]
                 self.grey_squares.add((i, c))
                 self.grey_letters.add(c)

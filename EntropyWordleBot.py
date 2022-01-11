@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from LoggerFactory import LoggerFactory
 from WordleBotInterface import WordleBotInterface
-from WordleTurn import SQUARE, GuessPattern
+from GuessPattern import SQUARE, GuessPattern
 
 logger = LoggerFactory.get_logger()
 
@@ -31,7 +31,7 @@ class EntropyWordleBot(WordleBotInterface):
                 self.words_dictionary.remaining_puzzle_words = [word for word in self.words_dictionary.remaining_puzzle_words if word[i] == c]
             elif p == SQUARE.YELLOW:
                 self.words_dictionary.remaining_puzzle_words = [word for word in self.words_dictionary.remaining_puzzle_words if word[i] != c and word.count(c) >= green_yellow_occurrences[c]]
-            elif p == SQUARE.MISS:
+            elif p == SQUARE.GREY:
                 self.words_dictionary.remaining_puzzle_words = [word for word in self.words_dictionary.remaining_puzzle_words if word[i] != c and word.count(c) < all_occurrences[c]]
 
         logger.debug('New dictionary size is: {}'.format(len(self.words_dictionary.remaining_puzzle_words)))

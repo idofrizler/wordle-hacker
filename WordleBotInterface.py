@@ -2,7 +2,10 @@ import random
 from abc import abstractmethod, ABC
 from collections import defaultdict
 
-from WordleTurn import SQUARE
+from GuessPattern import SQUARE
+from LoggerFactory import LoggerFactory
+
+logger = LoggerFactory.get_logger()
 
 
 class WordleBotInterface(ABC):
@@ -18,11 +21,13 @@ class WordleBotInterface(ABC):
     def play_turn(self):
         assert not self.game.is_over()
 
-        guess = self.make_guess() if len(self.game.turns) > 0 else 'TARES'
+        guess = self.make_guess() if len(self.game.turns) > 0 else 'SOARE'  # optimal first word for currently loaded dictionary
         turn = self.game.play_turn(guess)
         self.update_after_turn(turn)
 
     def make_guess(self) -> str:
+        assert len(self.words_dictionary.remaining_puzzle_words) > 0
+
         choice = self.choose_optimal_word()
         return choice
 
