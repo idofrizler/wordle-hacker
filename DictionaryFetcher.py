@@ -42,5 +42,5 @@ class DictionaryFetcher(object):
     def __init__(self) -> None:
         super().__init__()
         self.puzzle_words = init_dictionary_from_file(0, 20)
-        self.valid_words = init_dictionary_from_file(1, 19)
+        self.valid_words = init_dictionary_from_file(1, 19) + self.puzzle_words
 

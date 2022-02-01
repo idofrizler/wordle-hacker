@@ -19,7 +19,7 @@ class LoggerFactory(object):
 
         # Initialize the class variable with logger object
         LoggerFactory._LOG = logging.getLogger(log_file)
-        logging.basicConfig(level=logging.INFO, format=log_format, datefmt="%Y-%m-%d %H:%M:%S")
+        logging.basicConfig(filename=log_file, level=logging.INFO, format=log_format, datefmt="%Y-%m-%d %H:%M:%S")
 
         # set the logging level based on the user selection
         if log_level == "INFO":
@@ -37,6 +37,7 @@ class LoggerFactory(object):
         their own module
         """
         logger = LoggerFactory.__create_logger(LOG_FILE, LOG_LEVEL)
+        logger.addHandler(logging.StreamHandler())
 
         # return the logger object
         return logger

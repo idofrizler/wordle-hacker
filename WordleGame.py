@@ -9,8 +9,9 @@ logger = LoggerFactory.get_logger()
 
 class WordleGameInterface(ABC):
 
-    def __init__(self) -> None:
+    def __init__(self, hard_mode=False) -> None:
         self.turns = []
+        self.hard_mode = hard_mode
 
     def last_guess(self):
         if len(self.turns) == 0:
@@ -48,8 +49,8 @@ class WordleGameInterface(ABC):
 
 
 class BenchmarkWordleGame(WordleGameInterface):
-    def __init__(self, word) -> None:
-        super().__init__()
+    def __init__(self, word, hard_mode=False) -> None:
+        super().__init__(hard_mode)
         self.secret_word = word
 
     def get_pattern_for_guess(self, guess):
@@ -57,8 +58,8 @@ class BenchmarkWordleGame(WordleGameInterface):
 
 
 class InteractiveWordleGame(WordleGameInterface):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, hard_mode=False) -> None:
+        super().__init__(hard_mode)
 
     def get_pattern_for_guess(self, guess):
         stdin_pattern = input('Enter received pattern (V-Green, ?-Yellow, X-Grey): ')
